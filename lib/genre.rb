@@ -16,10 +16,10 @@ class Genre
     end
     
     def create(name)
-      created = self.new(name)
-      created.save
+      instance = self.new(name)
+      instance.save
       
-      created
+      instance
     end
   end
   
