@@ -1,9 +1,11 @@
 class Genre
   attr_accessor :name
+  attr_reader :songs, :name
   @@all = []
   
   def initialize(name)
     @name = name
+    @songs = []
   end
   
   class << self
