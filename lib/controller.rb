@@ -1,5 +1,3 @@
-require 'pry'
-
 class MusicLibraryController
   attr_reader :song_list
   
@@ -10,36 +8,23 @@ class MusicLibraryController
   end
   
   def call
-    puts "What would you like to do?"
     input = nil
     
     until input == "exit"
+      puts "What would you like to do?"
+      
+      display_options
       input = gets.chomp
       
-      if input == "list songs"
-        list_songs
-      elsif input == "list artists"
-        list_'artist'
-      elsif input == "list genres"
-        list_'genre'
-      elsif input == "play song"
-        list_songs
-        play_song
-      elsif input == "list artist" 
-        list_artist
-      elsif input == "list genre"
-        list_genre
-      elsif input != "exit"
-        puts "Invalid input. Please try again."
-        input = gets.chomp
-      end
+      valid_input.fetch(input) do |bad_input|
+        -> { puts "#{bad_input} is not valid. Please try again." }
+      end.call
     end
   end
   
-  
-  
+  protected
   def sort_by_artist
-    self.song_list.sort_by do |song|
+    song_list.sort_by do |song|
       "#{song.artist.name} #{song.name}"
     end    
   end
@@ -50,6 +35,7 @@ class MusicLibraryController
   
   def list_songs
     counter = 0
+    
     sort_by_artist.each do |song| 
       counter += 1
       puts "#{counter}. #{song_format(song)}"
@@ -57,9 +43,11 @@ class MusicLibraryController
   end
   
   def list_(x)
-    sort_by_artist.each do |song|
-      puts "#{song.__send__(x).name}"
-    end    
+    xs = sort_by_artist.map do |song|
+      song.__send__(x).name
+    end
+    
+    xs.uniq.each { |i| puts i }
   end
   
   def list_match_(x, input)
@@ -67,19 +55,23 @@ class MusicLibraryController
       if song.__send__(x).name == input
         puts "#{song_format(song)}"
       end  
-    end     
+    end
   end
   
   def play_song
     puts "Enter a number."
     input = gets.chomp.to_i
+    
     unless input == 0
-      song = sort_by_artist[input - 1]
-      puts "Playing #{song_format(song)}" 
+      song = sort_by_artist.fetch(input - 1) do |bad_input|
+        puts "There's no song with that number."
+        play_song
+      end 
+      puts "Playing #{song_format(song)}" unless song.nil?
     else
       puts "Let's try that again."
       play_song
-    end
+    end  
   end
   
   def list_artist
@@ -90,10 +82,28 @@ class MusicLibraryController
   end
   
   def list_genre
-    list_('genre').uniq.each { |genre| puts genre }
+    list_('genre')
     puts "Choose a genre."
     input = gets.chomp
     list_match_('genre', input)
   end
   
+  def display_options
+    options = ["list songs","list artists", "list genres", "play song",
+    "list artist", "list genre", "exit"]
+    
+    options.each { |option| puts option }
+  end
+  
+  def valid_input
+    valid_input = {
+        "list songs"   => ->{ list_songs },
+        "list artists" => ->{ list_'artist' },
+        "list genres"  => ->{ list_'genre' },
+        "play song"    => ->{ list_songs; play_song },
+        "list artist"  => ->{ list_artist },
+        "list genre"   => ->{ list_genre },
+        "exit"         => ->{ puts "Goodbye!"}}
+    valid_input  
+  end
 end

@@ -34,7 +34,7 @@ class Genre
   
   def artists
     songs = self.songs.select { |song| song.genre == self }
-    artists = songs.map { |song| song.artist }.uniq
+    songs.map { |song| song.artist }.uniq
   end
   
 end

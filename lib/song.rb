@@ -1,5 +1,3 @@
-require 'pry'
-
 class Song
   attr_reader :artist, :genre
   attr_accessor :name
@@ -20,8 +18,6 @@ class Song
     def destroy_all
       @@all.clear
     end
-    
-    
     
     def create(*data)
       song_name, artist, genre = data
@@ -52,8 +48,6 @@ class Song
       
       Song.create(song_name, artist, genre)
     end
-    
-    
     
     def data_from_filename(filename)
       filename.chomp('.mp3').split(' - ')
